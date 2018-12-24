@@ -26,7 +26,8 @@ var currentQuestion = 0;
 var correctAnswers = [];
 var totalCorrect = 0;
 var gameRun = false;
-
+var timer = null;
+console.log(timer);
 // Hide game elements until start
 $("#loading-image").hide();
 $("#question-container").hide();
@@ -61,6 +62,7 @@ function createAnswerButtons() {
 
 // Function to get current question
 function getQuestion(index) {
+  questionTimer();
   $("#loading-image").hide();
   $("#question-container").show();
   var i = 0;
@@ -104,6 +106,7 @@ function loading() {
       gameRun = true;
   }
 }
+
 function endGame(){
   gameRun = false;
   $("#start").show();
@@ -127,16 +130,43 @@ function endGame(){
   $("#end").append(endScreen);
 }
 
-// On click functions
-$(".answer").on("click", function () {
-  if ($(this).attr("answer-index") == questionObject.questionArray[currentQuestion].correctIndex) {
+function questionTimer(){
+  var time = 0;
+  var timePercentage = 0;
+  if(timer == null){
+    timer  = setInterval(function(){
+      timePercentage = Math.floor(((5-time)/5)*100);
+      $("#time-limit").html("<div class='progress-bar' role='progressbar' style='width:" + timePercentage+ "%;' aria-valuemin='0' aria-valuemax='100'>" +(5-time)+ "</div> ");
+      if(time === 5){
+        checkAnswer("wrong");
+        clearInterval(timer);
+        timer = null;
+      }
+      time++;
+    }, 1000);
+  }
+  else{
+    clearInterval(timer);
+    timer = null;
+  }
+
+}
+
+function checkAnswer(answer){
+  if (answer == questionObject.questionArray[currentQuestion].correctIndex) {
     correctAnswers.push(true);
   } else {
     correctAnswers.push(false);
   }
   currentQuestion++;
   loading();
+}
+
+// On click functions
+$(".answer").on("click", function () {
+  checkAnswer($(this).attr("answer-index"));
 })
+
 $("#start").on("click", function () {
   $("#start").hide();
   loading();
