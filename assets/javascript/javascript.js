@@ -40,6 +40,7 @@ function start() {
   correctAnswers = [];
   totalCorrect = 0;
   getQuestion(currentQuestion);
+  $("#end").html("");
 }
 
 // Function to create buttons
@@ -81,30 +82,52 @@ function finishTrivia() {
     if (correctAnswers[i] == true)
       totalCorrect++;
   }
-  console.log(totalCorrect);
 }
 
 function loading() {
   $("#question-container").hide();
+  $("#loading-image").html("<img src='assets/images/loading.gif' width='300px'></img>");
   $("#loading-image").show();
   if (gameRun == true) {
     if (currentQuestion != questionObject.questionArray.length) {
       setTimeout(function () {
         getQuestion(currentQuestion);
-      }, 1000)
+      }, 2000)
     } else {
       setTimeout(function () {
-        finishTrivia();
-      }, 1000)
+        endGame();
+      }, 2000)
     }
   }
   else{
-    setTimeout(function () {
       start();
       gameRun = true;
-    }, 1000)
   }
 }
+function endGame(){
+  gameRun = false;
+  $("#start").show();
+  // run to add up total correct answers
+  finishTrivia();
+  //hide elements
+  $("#question-container").hide();
+  $("#loading-image").hide();
+
+  var correctPercentage = Math.floor((totalCorrect/questionObject.questionArray.length)*100);
+  var endScreen = $("<div>");
+  var progressBar = $("<div>");
+  var display = $("<h3>");
+
+  display.text(`Correct Answers: ${totalCorrect} out of ${questionObject.questionArray.length}`);
+
+  // create progress bar
+  progressBar.html("<div class='progress-bar' role='progressbar' style='width:" + correctPercentage+ "%;' aria-valuemin='0' aria-valuemax='100'>" +correctPercentage+ "%</div> ");
+  endScreen.append(display);
+  endScreen.append(progressBar);
+  $("#end").append(endScreen);
+}
+
+// On click functions
 $(".answer").on("click", function () {
   if ($(this).attr("answer-index") == questionObject.questionArray[currentQuestion].correctIndex) {
     correctAnswers.push(true);
@@ -118,3 +141,4 @@ $("#start").on("click", function () {
   $("#start").hide();
   loading();
 })
+
